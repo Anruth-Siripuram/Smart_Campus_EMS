@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Cancellation Requests</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+
+<div class="container">
+
+    <!-- 🔝 TOP BAR -->
+    <div class="topbar">
+        <h2>Cancellation Requests</h2>
+
+        <form action="/admin/dashboard">
+            <button type="submit" class="secondary">Back</button>
+        </form>
+    </div>
+
+    <!-- 📋 REQUEST LIST -->
+    <div class="grid">
+
+        <div class="card booking-card"
+             th:each="b : ${bookings}"
+             th:if="${b.status.name() == 'PENDING'}">
+
+            <h3 th:text="${b.event.name}"></h3>
+
+            <p>👤 <span th:text="${b.user.name}"></span></p>
+
+            <p>🎟 Tickets: <span th:text="${b.ticketsCount}"></span></p>
+
+            <p>💰 ₹ <span th:text="${b.totalPrice}"></span></p>
+
+            <p>
+                Status:
+                <span class="status status-cancel_requested"
+                      th:text="${b.status}"></span>
+            </p>
+
+            <hr>
+
+            <!-- ✅ APPROVE BUTTON -->
+            <form action="/admin/approve" method="post">
+                <input type="hidden" name="id" th:value="${b.id}">
+                <button type="submit">Approve Cancel</button>
+            </form>
+
+        </div>
+
+    </div>
+
+    <!-- ❗ NO REQUESTS -->
+    <div th:if="${#lists.isEmpty(bookings)}"
+         style="text-align:center; margin-top:20px; opacity:0.6;">
+        No cancellation requests
+    </div>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Events</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+
+<div class="container">
+
+    <!-- 🔝 TOP BAR -->
+    <div class="topbar">
+        <h2>Explore Events</h2>
+
+        <div>
+
+            <!-- 🎟 MY BOOKINGS -->
+            <form action="/my-bookings" style="display:inline;">
+                <button type="submit">My Bookings</button>
+            </form>
+
+            <!-- 🚪 LOGOUT -->
+            <form action="/logout" style="display:inline;">
+                <button type="submit" class="secondary">Logout</button>
+            </form>
+
+        </div>
+    </div>
+
+    <!-- 🎯 EVENT GRID -->
+    <div class="grid">
+
+        <div class="card event-card" th:each="e : ${events}">
+
+            <!-- 🎉 EVENT NAME -->
+            <h3 th:text="${e.name}"></h3>
+
+            <!-- 🏷 TYPE -->
+            <p>
+                Type: 
+                <strong th:text="${e.type}"></strong>
+            </p>
+
+            <!-- 📍 VENUE -->
+            <p>
+                📍 <span th:text="${e.venue}"></span>
+            </p>
+
+            <!-- 📅 DATE -->
+            <p>
+                📅 
+                <span th:text="${#temporals.format(e.dateTime, 'dd MMM yyyy, HH:mm')}"></span>
+            </p>
+
+            <!-- 🎟 TICKETS -->
+            <p>
+                🎟 Available: 
+                <span th:text="${e.availableTickets}"></span>
+            </p>
+
+            <!-- 💰 PRICE -->
+            <p>
+                💰 ₹ <span th:text="${e.price}"></span>
+            </p>
+
+            <hr>
+
+            <!-- 🔘 ACTION BUTTON -->
+            <form th:action="@{'/event/' + ${e.id}}">
+                <button type="submit">View Details</button>
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+</html>

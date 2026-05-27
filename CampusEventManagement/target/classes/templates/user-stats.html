@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>User Analytics</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+
+<div class="container">
+
+    <!-- TOP -->
+    <div class="topbar">
+        <h2>User Analytics</h2>
+
+        <form action="/admin/stats">
+            <button class="secondary">Back</button>
+        </form>
+    </div>
+
+    <!-- SUMMARY -->
+    <div class="grid">
+
+        <div class="card">
+            <h3>Total Bookings</h3>
+            <p th:text="${bookings.size()}"></p>
+        </div>
+
+        <div class="card">
+            <h3>Total Spent</h3>
+            <p>₹ <span th:text="${totalRevenue}"></span></p>
+        </div>
+
+    </div>
+
+    <!-- CHARTS -->
+    <div class="grid">
+
+        <!-- PIE -->
+        <div class="card">
+            <h3>Booking Status</h3>
+            <canvas id="statusChart"></canvas>
+        </div>
+
+        <!-- BAR -->
+        <div class="card">
+            <h3>Tickets per Event</h3>
+            <canvas id="eventChart"></canvas>
+        </div>
+
+        <!-- DONUT -->
+        <div class="card">
+            <h3>Spending Distribution</h3>
+            <canvas id="spendingChart"></canvas>
+        </div>
+
+    </div>
+
+</div>
+
+<script th:inline="javascript">
+
+/* ======================
+   DATA PREPARATION
+====================== */
+
+let bookings = [[${bookings}]];
+
+/* STATUS COUNT */
+let booked = 0, cancelled = 0, pending = 0;
+
+let eventMap = {};
+let spendingMap = {};
+
+bookings.forEach(b => {
+
+    // status
+    if (b.status === 'BOOKED') booked++;
+    else if (b.status === 'CANCELLED') cancelled++;
+    else if (b.status === 'PENDING') pending++;
+
+    // tickets per event
+    let name = b.event.name;
+    eventMap[name] = (eventMap[name] || 0) + b.ticketsCount;
+
+    // spending per event
+    spendingMap[name] = (spendingMap[name] || 0) + b.totalPrice;
+});
+
+/* ======================
+   PIE CHART
+====================== */
+new Chart(document.getElementById('statusChart'), {
+    type: 'pie',
+    data: {
+        labels: ['Booked', 'Cancelled', 'Pending'],
+        datasets: [{
+            data: [booked, cancelled, pending],
+            backgroundColor: ['#2ecc71', '#e74c3c', '#f1c40f']
+        }]
+    }
+});
+
+/* ======================
+   BAR CHART
+====================== */
+new Chart(document.getElementById('eventChart'), {
+    type: 'bar',
+    data: {
+        labels: Object.keys(eventMap),
+        datasets: [{
+            label: 'Tickets',
+            data: Object.values(eventMap),
+            backgroundColor: '#3498db'
+        }]
+    }
+});
+
+/* ======================
+   DONUT CHART
+====================== */
+new Chart(document.getElementById('spendingChart'), {
+    type: 'doughnut',
+    data: {
+        labels: Object.keys(spendingMap),
+        datasets: [{
+            data: Object.values(spendingMap),
+            backgroundColor: ['#9b59b6','#1abc9c','#f39c12','#e67e22','#e84393']
+        }]
+    }
+});
+
+</script>
+
+</body>
+</html>

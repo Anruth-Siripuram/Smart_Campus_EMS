@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Add Event</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+
+<div class="container">
+
+    <!-- 🔝 TOP BAR -->
+    <div class="topbar">
+        <h2>Add New Event</h2>
+
+        <form action="/admin/dashboard">
+            <button type="submit" class="secondary">Back</button>
+        </form>
+    </div>
+
+    <!-- 🧊 FORM CARD -->
+    <div class="card">
+
+        <form action="/admin/add" method="post">
+
+            <label>Event Name</label>
+            <input name="name" placeholder="Enter event name" required>
+
+            <label>Description</label>
+            <input name="description" placeholder="Short description" required>
+
+            <label>Venue</label>
+            <input name="venue" placeholder="Event location" required>
+
+            <label>Date & Time</label>
+            <input type="datetime-local" name="dateTime" required>
+
+            <label>Total Tickets</label>
+            <input type="number" name="totalTickets" placeholder="Enter number of tickets" required>
+
+            <label>Ticket Price (₹)</label>
+            <input type="number" name="price" placeholder="0 for free events" required>
+
+            <label>Event Type</label>
+            <select name="type">
+                <option value="TECH" style="color:black">Technical</option>
+                <option value="NON_TECH" style="color:black">Non-Technical</option>
+            </select>
+
+            <br>
+
+            <!-- 🔘 ACTION BUTTON -->
+            <button type="submit">Create Event</button>
+
+        </form>
+
+    </div>
+
+</div>
+
+</body>
+</html>

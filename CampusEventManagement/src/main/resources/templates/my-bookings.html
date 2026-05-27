@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>My Bookings</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+
+<div class="container">
+
+    <!-- 🔝 TOP BAR -->
+    <div class="topbar">
+        <h2>My Bookings</h2>
+
+        <form action="/home">
+            <button class="secondary">Back</button>
+        </form>
+    </div>
+
+    <!-- 📋 BOOKINGS GRID -->
+    <div class="grid">
+
+        <div class="card booking-card" th:each="b : ${bookings}">
+
+            <h3 th:text="${b.event.name}"></h3>
+
+            <p>🎟 Tickets: <span th:text="${b.ticketsCount}"></span></p>
+
+            <p>💰 Total: ₹ <span th:text="${b.totalPrice}"></span></p>
+
+            <p>
+                Status:
+                <span class="status"
+                      th:text="${b.status}">
+                </span>
+            </p>
+
+            <hr>
+
+            <!-- 🎫 VIEW TICKET -->
+            <form th:action="@{'/ticket/' + ${b.id}}">
+                <button type="submit">View Ticket</button>
+            </form>
+
+            <!-- ❌ CANCEL REQUEST -->
+            <form action="/cancel" method="post"
+                  th:if="${b.status.name() == 'BOOKED'}">
+
+                <input type="hidden" name="id" th:value="${b.id}">
+                <button class="danger">Request Cancel</button>
+
+            </form>
+
+        </div>
+
+    </div>
+
+    <!-- ❗ EMPTY STATE -->
+    <div th:if="${#lists.isEmpty(bookings)}"
+         style="text-align:center; margin-top:20px; opacity:0.6;">
+        No bookings found
+    </div>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Admin Analytics</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+
+<div class="container">
+
+    <!-- 🔝 TOP BAR -->
+    <div class="topbar">
+        <h2>System Analytics</h2>
+
+        <form action="/admin/dashboard">
+            <button class="secondary">Back</button>
+        </form>
+    </div>
+
+    <!-- 📊 SUMMARY -->
+    <div class="grid">
+
+        <div class="card">
+            <h3>Total Events</h3>
+            <p th:text="${events.size()}"></p>
+        </div>
+
+        <div class="card">
+            <h3>Total Bookings</h3>
+            <p th:text="${bookings.size()}"></p>
+        </div>
+
+        <div class="card">
+            <h3>Total Revenue</h3>
+            <p>₹ <span th:text="${totalRevenue}"></span></p>
+        </div>
+
+    </div>
+
+    <!-- 📈 CHARTS -->
+    <div class="stats-grid">
+
+        <!-- BAR: counts -->
+        <div class="card">
+            <h3>Counts Overview</h3>
+            <canvas id="barChart"></canvas>
+        </div>
+
+        <!-- LINE: bookings trend -->
+        <div class="card">
+            <h3>Bookings Trend (Monthly)</h3>
+            <canvas id="lineChart"></canvas>
+        </div>
+
+        <!-- PIE: event types -->
+        <div class="card">
+            <h3>Event Types</h3>
+            <canvas id="pieChart"></canvas>
+        </div>
+
+        <!-- DOUGHNUT: revenue per event -->
+        <div class="card">
+            <h3>Revenue Distribution</h3>
+            <canvas id="revenueChart"></canvas>
+        </div>
+
+    </div>
+
+    <!-- 🔍 USER SEARCH -->
+    <div style="margin-top:30px;">
+        <input type="text" id="search" placeholder="Search users..." onkeyup="filterUsers()">
+    </div>
+
+    <!-- 👤 USERS -->
+    <div class="grid" id="userGrid">
+
+        <div class="card" th:each="u : ${users}">
+            <h3 th:text="${u.name}"></h3>
+
+            <form th:action="@{'/admin/stats/user/' + ${u.id}}">
+                <button>View Stats</button>
+            </form>
+        </div>
+
+    </div>
+
+</div>
+
+<!-- ================= JS ================= -->
+<script th:inline="javascript">
+
+/* ===== BACKEND DATA ===== */
+const eventsCount = [[${events.size()}]];
+const bookingsCount = [[${bookings.size()}]];
+const totalRevenue = [[${totalRevenue}]];
+const bookings = [[${bookings}]];
+
+/* ===== DERIVED DATA ===== */
+
+// 1) Event type counts
+let tech = 0, nonTech = 0;
+
+// 2) Revenue per event
+const revenueMap = {};
+
+// 3) Monthly bookings (trend)
+const monthMap = {
+    "Jan":0,"Feb":0,"Mar":0,"Apr":0,"May":0,"Jun":0,
+    "Jul":0,"Aug":0,"Sep":0,"Oct":0,"Nov":0,"Dec":0
+};
+
+bookings.forEach(b => {
+
+    // --- Event type (FIXED) ---
+    if (b.event && b.event.type) {
+
+        let type = b.event.type.toLowerCase().trim();
+
+        if (type.includes("tech") && !type.includes("non"))
+            tech++;
+        else
+            nonTech++;
+    }
+
+    // --- Revenue per event ---
+    const name = b.event ? b.event.name : "Unknown";
+    revenueMap[name] = (revenueMap[name] || 0) + (b.totalPrice || 0);
+
+    // --- Monthly trend ---
+    if (b.event && b.event.dateTime) {
+        const d = new Date(b.event.dateTime);
+        const m = d.toLocaleString('default', { month: 'short' });
+
+        if (monthMap[m] !== undefined) {
+            monthMap[m]++;
+        }
+    }
+
+});
+
+/* ===== BAR: COUNTS ===== */
+new Chart(document.getElementById('barChart'), {
+    type: 'bar',
+    data: {
+        labels: ['Events', 'Bookings'],
+        datasets: [{
+            label: 'Counts',
+            data: [eventsCount, bookingsCount],
+            backgroundColor: ['#00c6ff', '#ff9f43']
+        }]
+    },
+    options: {
+        plugins: { legend: { display: false } },
+        scales: { y: { beginAtZero: true } }
+    }
+});
+
+/* ===== LINE: MONTHLY BOOKINGS ===== */
+new Chart(document.getElementById('lineChart'), {
+    type: 'line',
+    data: {
+        labels: Object.keys(monthMap),
+        datasets: [{
+            label: 'Bookings',
+            data: Object.values(monthMap),
+            borderColor: '#00c6ff',
+            fill: false,
+            tension: 0.35
+        }]
+    },
+    options: {
+        plugins: { legend: { display: true } },
+        scales: { y: { beginAtZero: true } }
+    }
+});
+
+/* ===== PIE: EVENT TYPES ===== */
+new Chart(document.getElementById('pieChart'), {
+    type: 'pie',
+    data: {
+        labels: ['Technical', 'Non-Technical'],
+        datasets: [{
+            data: [tech, nonTech],
+            backgroundColor: ['#3498db', '#e74c3c']
+        }]
+    }
+});
+
+/* ===== DOUGHNUT: REVENUE PER EVENT ===== */
+new Chart(document.getElementById('revenueChart'), {
+    type: 'doughnut',
+    data: {
+        labels: Object.keys(revenueMap),
+        datasets: [{
+            data: Object.values(revenueMap),
+            backgroundColor: [
+                '#9b59b6','#1abc9c','#f39c12',
+                '#e67e22','#e84393','#2ecc71',
+                '#00c6ff','#ff7675'
+            ]
+        }]
+    }
+});
+
+/* ===== USER SEARCH ===== */
+function filterUsers() {
+    const input = document.getElementById("search").value.toLowerCase();
+    const cards = document.querySelectorAll("#userGrid .card");
+
+    cards.forEach(card => {
+        const name = card.innerText.toLowerCase();
+        card.style.display = name.includes(input) ? "block" : "none";
+    });
+}
+
+</script>
+
+</body>
+</html>

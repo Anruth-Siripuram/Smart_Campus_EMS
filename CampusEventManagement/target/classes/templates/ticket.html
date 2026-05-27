@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Ticket</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+
+<div class="center-flex">
+
+    <div class="ticket-container">
+
+        <!-- HEADER -->
+        <div class="ticket-header">
+            🎟 Event Ticket
+        </div>
+
+        <!-- BODY -->
+        <div class="ticket-body">
+
+            <!-- LEFT: DETAILS -->
+            <div class="ticket-left">
+
+                <h2 th:text="${booking.event.name}"></h2>
+
+                <div class="ticket-info">
+                    <p><span>📍</span> <strong>Venue:</strong> <span th:text="${booking.event.venue}"></span></p>
+                    <p><span>📅</span> <strong>Date:</strong>
+                        <span th:text="${#temporals.format(booking.event.dateTime, 'dd MMM yyyy, HH:mm')}"></span>
+                    </p>
+                    <p><span>🎟</span> <strong>Tickets:</strong> <span th:text="${booking.ticketsCount}"></span></p>
+                    <p><span>💰</span> <strong>Paid:</strong> ₹ <span th:text="${booking.totalPrice}"></span></p>
+                </div>
+
+                <div class="ticket-id">
+                    Ticket ID: <span th:text="${booking.ticketId}"></span>
+                </div>
+
+            </div>
+
+            <!-- PERFORATION -->
+            <div class="ticket-divider"></div>
+
+            <!-- RIGHT: QR -->
+            <div class="ticket-right">
+
+                <p class="qr-title">Scan to Verify</p>
+
+                <img th:src="@{${qr}}" class="qr-img" alt="QR Code">
+
+                <!-- PDF -->
+                <form th:action="@{'/ticket/pdf/' + ${booking.id}}">
+                    <button type="submit" class="btn-primary">Download PDF</button>
+                </form>
+
+            </div>
+
+        </div>
+
+        <!-- FOOTER -->
+        <div class="ticket-footer">
+            Show this ticket at entry gate
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Event Details</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+
+<div class="container">
+
+    <!-- 🔝 TOP BAR -->
+    <div class="topbar">
+        <h2 th:text="${event.name}"></h2>
+
+        <form action="/home">
+            <button type="submit" class="secondary">Back</button>
+        </form>
+    </div>
+
+    <!-- 🎯 MAIN GRID -->
+    <div class="grid">
+
+        <!-- 📄 EVENT DETAILS -->
+        <div class="card">
+
+            <h3>Event Information</h3>
+
+            <p th:text="${event.description}"></p>
+
+            <div class="ticket-info">
+                <span>📍 <strong th:text="${event.venue}"></strong></span>
+                <span>📅 
+                    <strong th:text="${#temporals.format(event.dateTime, 'dd MMM yyyy, HH:mm')}"></strong>
+                </span>
+            </div>
+
+            <p>🎟 Available Tickets: 
+                <strong th:text="${event.availableTickets}"></strong>
+            </p>
+
+        </div>
+
+        <!-- 💳 BOOKING PANEL -->
+        <div class="card">
+
+            <h3>Book Tickets</h3>
+
+            <p style="font-size: 1.2rem;">
+                Price: ₹ <strong id="price" th:text="${event.price}"></strong>
+            </p>
+
+            <label>Select Tickets</label>
+            <!-- 🔥 FIX: oninput instead of onchange -->
+            <input type="number" id="tickets" value="1" min="1" oninput="updatePrice()">
+
+            <hr>
+
+            <p style="font-size: 1.2rem;">
+                Total: ₹ <strong id="total">0</strong>
+            </p>
+
+            <form action="/book" method="post">
+                <input type="hidden" name="eventId" th:value="${event.id}">
+                <input type="hidden" id="ticketsInput" name="tickets">
+
+                <button type="submit" onclick="setTickets()">Confirm Booking</button>
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script src="/js/script.js"></script>
+
+</body>
+</html>
